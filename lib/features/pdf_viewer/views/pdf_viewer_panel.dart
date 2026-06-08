@@ -69,11 +69,31 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
     }
   }
 
-  void _setZoomScale(double scale) {
-    // Zoom around the center of the viewport
-    final matrix = Matrix4.identity()
-      ..scale(scale);
-    _transformationController.value = matrix;
+  void _setZoomScale(double newScale) {
+    final currentMatrix = _transformationController.value;
+    final currentScale = currentMatrix.getMaxScaleOnAxis();
+    
+    if (currentScale == newScale) return;
+
+    // Ekranın tam ortasını (focal point) buluyoruz
+    final size = MediaQuery.of(context).size;
+    // Başlık çubuğu vs. olduğu için yaklaşık bir orta nokta hesaplıyoruz
+    final focalPoint = Offset(size.width / 2, size.height / 2);
+
+    final scaleRatio = newScale / currentScale;
+    
+    // Mevcut kaydırma (translation) değerleri
+    final currentTranslation = Offset(currentMatrix.row0[3], currentMatrix.row1[3]);
+    
+    // Ekranın ortasını sabit tutarak yeni X ve Y konumlarını hesaplıyoruz
+    final newDx = focalPoint.dx - (focalPoint.dx - currentTranslation.dx) * scaleRatio;
+    final newDy = focalPoint.dy - (focalPoint.dy - currentTranslation.dy) * scaleRatio;
+
+    final newMatrix = Matrix4.identity()
+      ..translate(newDx, newDy)
+      ..scale(newScale);
+
+    _transformationController.value = newMatrix;
   }
 
   @override
