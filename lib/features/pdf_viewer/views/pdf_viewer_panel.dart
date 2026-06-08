@@ -27,16 +27,28 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
   
   final TransformationController _transformationController = TransformationController();
   bool _isPanEnabled = false;
+  double _currentScale = 1.0;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController();
+    _transformationController.addListener(_onScaleChanged);
+  }
+
+  void _onScaleChanged() {
+    final scale = _transformationController.value.getMaxScaleOnAxis();
+    if (_currentScale != scale) {
+      setState(() {
+        _currentScale = scale;
+      });
+    }
   }
 
   @override
   void dispose() {
     _pageController.dispose();
+    _transformationController.removeListener(_onScaleChanged);
     _transformationController.dispose();
     super.dispose();
   }
@@ -324,17 +336,46 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
                           color: Colors.grey.withOpacity(0.3),
                           margin: const EdgeInsets.symmetric(horizontal: 4),
                         ),
-                        // Uzaklaştır
-                        IconButton(
-                          icon: const Icon(Icons.remove_circle_outline, color: AppColors.textSecondary),
-                          onPressed: _zoomOut,
-                          tooltip: 'Uzaklaştır',
+                        // Uzaklaştır İkonu
+                        GestureDetector(
+                          onTap: _zoomOut,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Icon(Icons.remove, color: AppColors.textSecondary, size: 20),
+                          ),
                         ),
-                        // Yakınlaştır
-                        IconButton(
-                          icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
-                          onPressed: _zoomIn,
-                          tooltip: 'Yakınlaştır',
+                        // Yakınlaştırma Slider'ı
+                        SizedBox(
+                          width: 120, // Slider genişliği
+                          child: SliderTheme(
+                            data: SliderTheme.of(context).copyWith(
+                              activeTrackColor: AppColors.primary,
+                              inactiveTrackColor: Colors.grey.withOpacity(0.2),
+                              thumbColor: Colors.white,
+                              overlayColor: AppColors.primary.withOpacity(0.1),
+                              trackHeight: 4.0,
+                              thumbShape: const RoundSliderThumbShape(
+                                enabledThumbRadius: 8.0,
+                                elevation: 3,
+                              ),
+                            ),
+                            child: Slider(
+                              value: _currentScale,
+                              min: 1.0,
+                              max: 5.0,
+                              onChanged: (value) {
+                                _setZoomScale(value);
+                              },
+                            ),
+                          ),
+                        ),
+                        // Yakınlaştır İkonu
+                        GestureDetector(
+                          onTap: _zoomIn,
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 8.0),
+                            child: Icon(Icons.add, color: AppColors.primary, size: 20),
+                          ),
                         ),
                       ],
                     ),
