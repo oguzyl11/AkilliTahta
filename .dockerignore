@@ -1,0 +1,14 @@
+build/
+.dart_tool/
+.git/
+.idea/
+windows/
+macos/
+web/
+ios/
+android/
+*.iml
+.env
+.env.*
+!.env.example
+proje gereklilikleri/

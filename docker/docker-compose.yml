@@ -1,0 +1,14 @@
+# Akıllı Tahta — Docker Compose
+# Tek komutla Linux build:
+#   docker-compose -f docker/docker-compose.yml up --build
+
+services:
+  build-linux:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    volumes:
+      # Build çıktısını host'a kopyala
+      - ../build:/app/build
+    command: >
+      sh -c "echo '✅ Build tamamlandı! Çıktı: build/linux/x64/release/bundle/'"
