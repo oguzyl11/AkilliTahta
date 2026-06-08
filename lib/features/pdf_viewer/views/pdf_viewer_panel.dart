@@ -172,51 +172,57 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
             final page = doc.pages[index];
 
             return Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: AspectRatio(
-                  aspectRatio: page.width / page.height,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
-                          blurRadius: 10,
-                          spreadRadius: 1,
-                        ),
-                      ],
-                    ),
-                    child: Stack(
-                      children: [
-                        // Katman 1: PDF Sayfası
-                        PdfPageView(
-                          document: doc,
-                          pageNumber: pageNum,
-                          alignment: Alignment.center,
-                        ),
-                        
-                        // Katman 2: Çizim canvas'ı
-                        if (!isSelectMode)
-                          Positioned.fill(
-                            child: ChangeNotifierProvider.value(
-                              value: drawingController,
-                              child: const DrawingCanvas(),
-                            ),
+              child: InteractiveViewer(
+                maxScale: 5.0,
+                minScale: 1.0,
+                panEnabled: false, // 1 parmak çizim/seçim için kapalı, 2 parmakla kaydırma çalışır
+                scaleEnabled: true, // 2 parmak yakınlaştırma açık
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: AspectRatio(
+                    aspectRatio: page.width / page.height,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 10,
+                            spreadRadius: 1,
                           ),
-
-                        // Katman 3: Seçim overlay'i (sadece seçim modunda)
-                        if (isSelectMode)
-                          Positioned.fill(
-                            child: ChangeNotifierProvider.value(
-                              value: questionController,
-                              child: question_widgets.SelectionOverlay(
-                                pageNumber: pageNum,
-                                pageSize: Size(page.width, page.height),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          // Katman 1: PDF Sayfası
+                          PdfPageView(
+                            document: doc,
+                            pageNumber: pageNum,
+                            alignment: Alignment.center,
+                          ),
+                          
+                          // Katman 2: Çizim canvas'ı
+                          if (!isSelectMode)
+                            Positioned.fill(
+                              child: ChangeNotifierProvider.value(
+                                value: drawingController,
+                                child: const DrawingCanvas(),
                               ),
                             ),
-                          ),
-                      ],
+
+                          // Katman 3: Seçim overlay'i (sadece seçim modunda)
+                          if (isSelectMode)
+                            Positioned.fill(
+                              child: ChangeNotifierProvider.value(
+                                value: questionController,
+                                child: question_widgets.SelectionOverlay(
+                                  pageNumber: pageNum,
+                                  pageSize: Size(page.width, page.height),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

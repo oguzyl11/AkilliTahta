@@ -37,54 +37,21 @@ class QuestionModal extends StatelessWidget {
             }
           },
           child: Material(
-            color: Colors.black87,
-            child: Stack(
+            color: Colors.white,
+            child: Column(
               children: [
-                // Ana içerik — büyütülmüş soru bölgesi + çizim canvas
-                Positioned.fill(
-                  child: Padding(
-                    padding: const EdgeInsets.all(AppSizes.modalPadding),
-                    child: Column(
-                      children: [
-                        // Üst bar
-                        _buildTopBar(context, controller),
-                        const SizedBox(height: AppSizes.paddingMD),
-
-                        // Büyütülmüş alan — çizim yapılabilir
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: AppColors.surface,
-                              borderRadius:
-                                  BorderRadius.circular(AppSizes.radiusLG),
-                              border: Border.all(
-                                color: AppColors.border,
-                                width: 1,
-                              ),
-                            ),
-                            child: ClipRRect(
-                              borderRadius:
-                                  BorderRadius.circular(AppSizes.radiusLG),
-                              child: Stack(
-                                children: [
-                                  // Arka plan — soru bölgesinin büyütülmüş hali
-                                  _buildCroppedPdfRegion(context, controller),
-
-                                  // Çizim katmanı
-                                  Positioned.fill(
-                                    child: ChangeNotifierProvider.value(
-                                      value: context.read<DrawingController>(),
-                                      child: const DrawingCanvas(),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                // Üst bar
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: AppSizes.paddingLG,
+                    vertical: AppSizes.paddingMD,
                   ),
+                  child: _buildTopBar(context, controller),
+                ),
+
+                // Büyütülmüş alan — çizim yapılabilir (arka planda)
+                Expanded(
+                  child: _buildCroppedPdfRegion(context, controller),
                 ),
               ],
             ),

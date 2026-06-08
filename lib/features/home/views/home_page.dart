@@ -53,6 +53,12 @@ class _HomePageState extends State<HomePage> {
                       child: PdfViewerPanel(),
                     ),
 
+                    // Soru Büyütme Ekranı (Tüm ekranı kaplar, pdf'in üstünde ama araçların altında)
+                    if (questionController.isModalOpen)
+                      const Positioned.fill(
+                        child: QuestionModal(),
+                      ),
+
                     // Yüzen, sürüklenebilir araç çubuğu (Kutu)
                     Positioned(
                       left: _toolbarPosition.dx,
@@ -71,9 +77,6 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
-
-          // ─── Soru Büyütme Modalı (overlay) ───
-          if (questionController.isModalOpen) const QuestionModal(),
         ],
       ),
     );
