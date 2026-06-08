@@ -8,7 +8,7 @@ class AppSizes {
   static const double touchTargetXLarge = 64.0;
 
   // Araç çubuğu
-  static const double toolbarWidth = 88.0;
+  static const double toolbarWidth = 136.0;
   static const double toolbarIconSize = 28.0;
   static const double toolbarButtonSize = 52.0;
 

@@ -25,20 +25,35 @@ class ToolbarPanel extends StatelessWidget {
         return AnimatedContainer(
           duration: const Duration(milliseconds: AppSizes.animationNormal),
           width: toolbar.isExpanded ? AppSizes.toolbarWidth : 0,
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             color: AppColors.toolbarBackground,
-            border: Border(
-              right: BorderSide(color: AppColors.border, width: 1),
-            ),
+            borderRadius: BorderRadius.circular(AppSizes.radiusLG),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 15,
+                spreadRadius: 2,
+                offset: const Offset(0, 4),
+              ),
+            ],
+            border: Border.all(color: AppColors.border, width: 1),
           ),
           child: toolbar.isExpanded
               ? SingleChildScrollView(
                   padding: const EdgeInsets.symmetric(
-                    vertical: AppSizes.paddingMD,
+                    vertical: AppSizes.paddingSM,
                     horizontal: AppSizes.paddingSM,
                   ),
                   child: Column(
                     children: [
+                      // ─── Drag Handle ───
+                      const Icon(
+                        Icons.drag_indicator,
+                        color: AppColors.textHint,
+                        size: 20,
+                      ),
+                      const SizedBox(height: AppSizes.paddingSM),
+
                       // ─── Çizim Araçları ───
                       _buildSectionLabel('ARAÇLAR'),
                       const SizedBox(height: AppSizes.paddingSM),
@@ -81,6 +96,7 @@ class ToolbarPanel extends StatelessWidget {
 
                       // ─── Sayfa Navigasyonu ───
                       _buildPageNavigation(context),
+                      const SizedBox(height: AppSizes.paddingSM),
                     ],
                   ),
                 )
@@ -104,6 +120,7 @@ class ToolbarPanel extends StatelessWidget {
 
   Widget _buildToolButtons(ToolbarController toolbar) {
     return Wrap(
+      alignment: WrapAlignment.center,
       spacing: AppSizes.paddingXS,
       runSpacing: AppSizes.paddingXS,
       children: [

@@ -19,8 +19,16 @@ import '../../../shared/widgets/app_icon_button.dart';
 /// - Toolbar (sol araç çubuğu)
 /// - PDF Viewer (merkez alan)
 /// - Question Modal (tam ekran overlay)
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
+
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // Toolbar başlangıç pozisyonu
+  Offset _toolbarPosition = const Offset(16, 16);
 
   @override
   Widget build(BuildContext context) {
@@ -36,16 +44,27 @@ class HomePage extends StatelessWidget {
               // ─── Üst Başlık Çubuğu ───
               _buildHeaderBar(context),
 
-              // ─── Gövde: Toolbar + PDF Viewer ───
+              // ─── Gövde: Yüzen Toolbar + PDF Viewer ───
               Expanded(
-                child: Row(
+                child: Stack(
                   children: [
-                    // Sol araç çubuğu
-                    const ToolbarPanel(),
-
-                    // Merkez PDF görüntüleyici
-                    const Expanded(
+                    // Merkez PDF görüntüleyici (Arka planda tüm alanı kaplar)
+                    const Positioned.fill(
                       child: PdfViewerPanel(),
+                    ),
+
+                    // Yüzen, sürüklenebilir araç çubuğu (Kutu)
+                    Positioned(
+                      left: _toolbarPosition.dx,
+                      top: _toolbarPosition.dy,
+                      child: GestureDetector(
+                        onPanUpdate: (details) {
+                          setState(() {
+                            _toolbarPosition += details.delta;
+                          });
+                        },
+                        child: const ToolbarPanel(),
+                      ),
                     ),
                   ],
                 ),

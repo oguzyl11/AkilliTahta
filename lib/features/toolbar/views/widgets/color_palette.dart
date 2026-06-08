@@ -19,6 +19,7 @@ class ColorPalette extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Wrap(
+      alignment: WrapAlignment.center,
       spacing: AppSizes.colorSwatchSpacing,
       runSpacing: AppSizes.colorSwatchSpacing,
       children: AppColors.drawingPalette.map((color) {
