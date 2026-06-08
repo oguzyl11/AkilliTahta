@@ -82,55 +82,64 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  /// Üst başlık çubuğu
+  /// Üst başlık çubuğu (Premium Tasarım)
   Widget _buildHeaderBar(BuildContext context) {
     final pdfController = context.watch<PdfController>();
     final toolbarController = context.read<ToolbarController>();
     final drawingController = context.read<DrawingController>();
 
     return Container(
-      height: AppSizes.headerHeight,
-      decoration: const BoxDecoration(
-        color: AppColors.surface,
-        border: Border(
-          bottom: BorderSide(color: AppColors.border, width: 1),
-        ),
+      height: 64, // Biraz daha ince ve zarif
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
-      padding: const EdgeInsets.symmetric(horizontal: AppSizes.paddingLG),
+      padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Row(
         children: [
           // Sol: Menü + Başlık
-          AppIconButton(
-            icon: Icons.menu,
-            tooltip: 'Menü',
-            onPressed: toolbarController.toggleExpanded,
+          Container(
+            decoration: BoxDecoration(
+              color: AppColors.primary.withOpacity(0.05),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: IconButton(
+              icon: const Icon(Icons.menu_rounded, color: AppColors.primary),
+              tooltip: 'Menü',
+              onPressed: toolbarController.toggleExpanded,
+            ),
           ),
-          const SizedBox(width: AppSizes.paddingSM),
+          const SizedBox(width: 16),
           const Text(
             AppStrings.appTitle,
             style: TextStyle(
               color: AppColors.textPrimary,
-              fontSize: 18,
-              fontWeight: FontWeight.w700,
-              letterSpacing: -0.3,
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(width: AppSizes.paddingSM),
+          const SizedBox(width: 8),
           Container(
-            padding: const EdgeInsets.symmetric(
-              horizontal: AppSizes.paddingSM,
-              vertical: AppSizes.paddingXS,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
             decoration: BoxDecoration(
-              color: AppColors.primary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(AppSizes.radiusSM),
+              gradient: const LinearGradient(
+                colors: [AppColors.primary, Color(0xFF1E3A8A)],
+              ),
+              borderRadius: BorderRadius.circular(8),
             ),
             child: const Text(
               'v1.0',
               style: TextStyle(
-                color: AppColors.primary,
-                fontSize: 11,
-                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
               ),
             ),
           ),
@@ -139,78 +148,109 @@ class _HomePageState extends State<HomePage> {
 
           // Orta: PDF bilgisi
           if (pdfController.isLoaded) ...[
-            // Dosya adı
+            // Dosya adı göstergesi
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.paddingMD,
-                vertical: AppSizes.paddingSM,
-              ),
+              constraints: const BoxConstraints(maxWidth: 350),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.surfaceCard,
-                borderRadius: BorderRadius.circular(AppSizes.radiusSM),
+                color: const Color(0xFFF1F5F9), // Çok açık gri/mavi
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(color: const Color(0xFFE2E8F0)),
               ),
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  const Icon(
-                    Icons.description_outlined,
-                    size: 16,
-                    color: AppColors.textSecondary,
-                  ),
-                  const SizedBox(width: AppSizes.paddingSM),
-                  Text(
-                    pdfController.document!.fileName,
-                    style: const TextStyle(
-                      color: AppColors.textPrimary,
-                      fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                  const Icon(Icons.menu_book_rounded, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 8),
+                  Flexible(
+                    child: Text(
+                      _formatFileName(pdfController.document!.fileName),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: AppColors.textPrimary,
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: AppSizes.paddingMD),
+            const SizedBox(width: 12),
 
             // Sayfa bilgisi
             Container(
-              padding: const EdgeInsets.symmetric(
-                horizontal: AppSizes.paddingMD,
-                vertical: AppSizes.paddingSM,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: AppColors.surfaceCard,
-                borderRadius: BorderRadius.circular(AppSizes.radiusSM),
+                color: AppColors.primary.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(20),
               ),
-              child: Text(
-                '${AppStrings.sayfaBilgisi}: ${pdfController.currentPage} / ${pdfController.totalPages}',
-                style: const TextStyle(
-                  color: AppColors.textSecondary,
-                  fontSize: 13,
-                ),
+              child: Row(
+                children: [
+                  const Icon(Icons.find_in_page_outlined, size: 18, color: AppColors.primary),
+                  const SizedBox(width: 6),
+                  Text(
+                    '${pdfController.currentPage} / ${pdfController.totalPages}',
+                    style: const TextStyle(
+                      color: AppColors.primary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ],
               ),
             ),
-            const SizedBox(width: AppSizes.paddingMD),
+            const SizedBox(width: 16),
           ],
 
-          // Sağ: Temizle + PDF Yükle
-          if (pdfController.isLoaded)
-            AppIconButton(
-              icon: Icons.delete_outline,
-              tooltip: AppStrings.temizle,
-              onPressed: drawingController.clearCurrentPage,
+          // Sağ: Temizle + Kütüphaneye Dön
+          if (pdfController.isLoaded) ...[
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.red.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.delete_sweep_rounded, color: Colors.red),
+                tooltip: 'Sayfadaki Çizimleri Temizle',
+                onPressed: drawingController.clearCurrentPage,
+              ),
             ),
-          const SizedBox(width: AppSizes.paddingSM),
-          OutlinedButton.icon(
-            onPressed: pdfController.closePdf,
-            icon: const Icon(Icons.arrow_back, size: 18),
-            label: const Text('Kütüphaneye Dön'),
-            style: OutlinedButton.styleFrom(
-              foregroundColor: AppColors.primary,
-              side: const BorderSide(color: AppColors.primary),
+            const SizedBox(width: 12),
+          ],
+          ElevatedButton.icon(
+            onPressed: () {
+              pdfController.closePdf();
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.primary,
+              foregroundColor: Colors.white,
+              elevation: 0,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            icon: const Icon(Icons.arrow_back_rounded, size: 20),
+            label: const Text(
+              'Kütüphane',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
             ),
           ),
         ],
       ),
     );
+  }
+
+  /// Bozuk veya uzun dosya adlarını düzeltip kırpmak için yardımcı metot
+  String _formatFileName(String rawName) {
+    if (rawName.contains('appBooksDir.path')) {
+      return 'Bilinmeyen Kitap (Bozuk Dosya)';
+    }
+    if (rawName.endsWith('.pdf')) {
+      return rawName.substring(0, rawName.length - 4);
+    }
+    return rawName;
   }
 }

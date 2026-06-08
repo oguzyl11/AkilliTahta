@@ -65,7 +65,7 @@ class LibraryController extends ChangeNotifier {
         // Dosyayı belgelerim altına AkilliTahta/Books klasörüne kopyala
         final appDocDir = await getApplicationDocumentsDirectory();
         final separator = Platform.pathSeparator;
-        final appBooksDirPath = '\${appDocDir.path}\${separator}AkilliTahta\${separator}Books';
+        final appBooksDirPath = '${appDocDir.path}${separator}AkilliTahta${separator}Books';
         final appBooksDir = Directory(appBooksDirPath);
         
         if (!await appBooksDir.exists()) {
@@ -74,8 +74,8 @@ class LibraryController extends ChangeNotifier {
 
         final newId = DateTime.now().millisecondsSinceEpoch.toString();
         // Aynı isimde dosya çakışmasını önlemek için ID ekleyelim
-        final safeFileName = '\${newId}_\$fileName';
-        final targetPath = '\${appBooksDir.path}\$separator\$safeFileName';
+        final safeFileName = '${newId}_$fileName';
+        final targetPath = '${appBooksDir.path}$separator$safeFileName';
 
         final file = File(originalPath);
         await file.copy(targetPath);
@@ -90,7 +90,7 @@ class LibraryController extends ChangeNotifier {
         await _repository.saveBooks(_books);
       }
     } catch (e) {
-      debugPrint('Kitap eklenirken hata oluştu: \$e');
+      debugPrint('Kitap eklenirken hata oluştu: $e');
     } finally {
       _isLoading = false;
       notifyListeners();
@@ -107,7 +107,7 @@ class LibraryController extends ChangeNotifier {
           await file.delete();
         }
       } catch (e) {
-        debugPrint('Dosya silinirken hata: \$e');
+        debugPrint('Dosya silinirken hata: $e');
       }
       
       _books.removeAt(bookIndex);

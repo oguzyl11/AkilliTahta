@@ -24,6 +24,9 @@ class PdfViewerPanel extends StatefulWidget {
 class _PdfViewerPanelState extends State<PdfViewerPanel> {
   late PageController _pageController;
   int _lastPage = 1;
+  
+  final TransformationController _transformationController = TransformationController();
+  bool _isPanEnabled = false;
 
   @override
   void initState() {
@@ -34,7 +37,31 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
   @override
   void dispose() {
     _pageController.dispose();
+    _transformationController.dispose();
     super.dispose();
+  }
+
+  void _zoomIn() {
+    final currentScale = _transformationController.value.getMaxScaleOnAxis();
+    if (currentScale < 5.0) {
+      final newScale = (currentScale + 0.5).clamp(1.0, 5.0);
+      _setZoomScale(newScale);
+    }
+  }
+
+  void _zoomOut() {
+    final currentScale = _transformationController.value.getMaxScaleOnAxis();
+    if (currentScale > 1.0) {
+      final newScale = (currentScale - 0.5).clamp(1.0, 5.0);
+      _setZoomScale(newScale);
+    }
+  }
+
+  void _setZoomScale(double scale) {
+    // Zoom around the center of the viewport
+    final matrix = Matrix4.identity()
+      ..scale(scale);
+    _transformationController.value = matrix;
   }
 
   @override
@@ -170,68 +197,150 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
             final pageNum = index + 1;
             final page = doc.pages[index];
 
-            return Center(
-              child: InteractiveViewer(
-                maxScale: 5.0,
-                minScale: 1.0,
-                panEnabled: false, // 1 parmak çizim/seçim için kapalı, 2 parmakla kaydırma çalışır
-                scaleEnabled: true, // 2 parmak yakınlaştırma açık
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: AspectRatio(
-                    aspectRatio: page.width / page.height,
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.1),
-                            blurRadius: 10,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: Stack(
-                        children: [
-                          // Katman 1: PDF Sayfası
-                          PdfPageView(
-                            document: doc,
-                            pageNumber: pageNum,
-                            alignment: Alignment.center,
-                          ),
-                          
-                          // Dinamik Katmanlar: Çizim veya Seçim
-                          Positioned.fill(
-                            child: Selector<DrawingController, bool>(
-                              selector: (_, ctrl) => ctrl.currentTool.isSelect,
-                              builder: (_, isSelectMode, __) {
-                                return Stack(
-                                  fit: StackFit.expand,
-                                  children: [
-                                    if (!isSelectMode)
-                                      ChangeNotifierProvider.value(
-                                        value: drawingController,
-                                        child: DrawingCanvas(pageNumber: pageNum),
-                                      ),
-                                    if (isSelectMode)
-                                      ChangeNotifierProvider.value(
-                                        value: questionController,
-                                        child: question_widgets.SelectionOverlay(
-                                          pageNumber: pageNum,
-                                          pageSize: Size(page.width, page.height),
-                                        ),
-                                      ),
+            return Stack(
+              children: [
+                // Arka plan ve PDF içeriği
+                Positioned.fill(
+                  child: InteractiveViewer(
+                    transformationController: _transformationController,
+                    maxScale: 5.0,
+                    minScale: 1.0,
+                    panEnabled: _isPanEnabled, // Kaydırma modu aktifse 1 parmakla kaydırabilir
+                    scaleEnabled: true,
+                    child: Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: AspectRatio(
+                          aspectRatio: page.width / page.height,
+                          child: LayoutBuilder(
+                            builder: (context, constraints) {
+                              // Artık constraints.maxWidth ve maxHeight gerçek PDF container boyutları!
+                              final actualContainerSize = Size(constraints.maxWidth, constraints.maxHeight);
+                              return Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.1),
+                                      blurRadius: 10,
+                                      spreadRadius: 1,
+                                    ),
                                   ],
-                                );
-                              },
-                            ),
+                                ),
+                                child: Stack(
+                                  children: [
+                                    // Katman 1: PDF Sayfası
+                                    PdfPageView(
+                                      document: doc,
+                                      pageNumber: pageNum,
+                                      alignment: Alignment.center,
+                                    ),
+                                    
+                                    // Dinamik Katmanlar: Çizim veya Seçim
+                                    Positioned.fill(
+                                      child: Selector<DrawingController, bool>(
+                                        selector: (_, ctrl) => ctrl.currentTool.isSelect,
+                                        builder: (_, isSelectMode, __) {
+                                          return Stack(
+                                            fit: StackFit.expand,
+                                            children: [
+                                              // Kaydırma (Pan) aktifse çizim yapılamaz
+                                              if (!isSelectMode && !_isPanEnabled)
+                                                ChangeNotifierProvider.value(
+                                                  value: drawingController,
+                                                  child: DrawingCanvas(pageNumber: pageNum),
+                                                ),
+                                              if (isSelectMode && !_isPanEnabled)
+                                                ChangeNotifierProvider.value(
+                                                  value: questionController,
+                                                  child: question_widgets.SelectionOverlay(
+                                                    pageNumber: pageNum,
+                                                    pageSize: actualContainerSize, // Gerçek container boyutu
+                                                  ),
+                                                ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              );
+                            },
                           ),
-                        ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
+                
+                // Sağ Alt: Büyüteç ve Kaydırma Kontrolleri
+                Positioned(
+                  right: 24,
+                  bottom: 24,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(30),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 10,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        // Kaydırma Modu (El İkonu)
+                        Tooltip(
+                          message: _isPanEnabled ? 'Çizim Moduna Dön' : 'Sayfayı Kaydır',
+                          child: InkWell(
+                            onTap: () {
+                              setState(() {
+                                _isPanEnabled = !_isPanEnabled;
+                              });
+                            },
+                            borderRadius: BorderRadius.circular(20),
+                            child: Container(
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                color: _isPanEnabled ? AppColors.primary.withOpacity(0.1) : Colors.transparent,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                _isPanEnabled ? Icons.pan_tool : Icons.pan_tool_outlined,
+                                color: _isPanEnabled ? AppColors.primary : AppColors.textSecondary,
+                                size: 24,
+                              ),
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 1,
+                          height: 24,
+                          color: Colors.grey.withOpacity(0.3),
+                          margin: const EdgeInsets.symmetric(horizontal: 4),
+                        ),
+                        // Uzaklaştır
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline, color: AppColors.textSecondary),
+                          onPressed: _zoomOut,
+                          tooltip: 'Uzaklaştır',
+                        ),
+                        // Yakınlaştır
+                        IconButton(
+                          icon: const Icon(Icons.add_circle_outline, color: AppColors.primary),
+                          onPressed: _zoomIn,
+                          tooltip: 'Yakınlaştır',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             );
           },
         );
