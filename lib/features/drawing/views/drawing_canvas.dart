@@ -8,7 +8,8 @@ import 'package:provider/provider.dart';
 /// PDF görüntüleyicinin üzerine Stack ile bindirilir.
 /// GestureDetector ile dokunma/mouse olaylarını yakalar.
 class DrawingCanvas extends StatelessWidget {
-  const DrawingCanvas({super.key});
+  final int pageNumber;
+  const DrawingCanvas({super.key, required this.pageNumber});
 
   @override
   Widget build(BuildContext context) {
@@ -21,6 +22,8 @@ class DrawingCanvas extends StatelessWidget {
 
         return GestureDetector(
           onPanStart: (details) {
+            // Çizim başlarken aktif sayfayı ayarla (güvence amaçlı)
+            controller.setActivePageNumber(pageNumber);
             controller.startStroke(details.localPosition);
           },
           onPanUpdate: (details) {
@@ -32,8 +35,10 @@ class DrawingCanvas extends StatelessWidget {
           child: ClipRect(
             child: CustomPaint(
               painter: _StrokePainter(
-                strokes: controller.currentPageStrokes,
-                currentStroke: controller.currentStroke,
+                strokes: controller.getStrokesForPage(pageNumber),
+                currentStroke: controller.activePageNumber == pageNumber 
+                    ? controller.currentStroke 
+                    : null,
               ),
               size: Size.infinite,
             ),

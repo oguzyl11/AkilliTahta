@@ -141,7 +141,6 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
   Widget _buildPdfView(PdfController pdfController) {
     final drawingController = context.read<DrawingController>();
     final questionController = context.read<QuestionController>();
-    final isSelectMode = context.watch<DrawingController>().currentTool.isSelect;
 
     return PdfDocumentViewBuilder.file(
       pdfController.currentFilePath!,
@@ -201,26 +200,32 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
                             alignment: Alignment.center,
                           ),
                           
-                          // Katman 2: Çizim canvas'ı
-                          if (!isSelectMode)
-                            Positioned.fill(
-                              child: ChangeNotifierProvider.value(
-                                value: drawingController,
-                                child: const DrawingCanvas(),
-                              ),
+                          // Dinamik Katmanlar: Çizim veya Seçim
+                          Positioned.fill(
+                            child: Selector<DrawingController, bool>(
+                              selector: (_, ctrl) => ctrl.currentTool.isSelect,
+                              builder: (_, isSelectMode, __) {
+                                return Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    if (!isSelectMode)
+                                      ChangeNotifierProvider.value(
+                                        value: drawingController,
+                                        child: DrawingCanvas(pageNumber: pageNum),
+                                      ),
+                                    if (isSelectMode)
+                                      ChangeNotifierProvider.value(
+                                        value: questionController,
+                                        child: question_widgets.SelectionOverlay(
+                                          pageNumber: pageNum,
+                                          pageSize: Size(page.width, page.height),
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
                             ),
-
-                          // Katman 3: Seçim overlay'i (sadece seçim modunda)
-                          if (isSelectMode)
-                            Positioned.fill(
-                              child: ChangeNotifierProvider.value(
-                                value: questionController,
-                                child: question_widgets.SelectionOverlay(
-                                  pageNumber: pageNum,
-                                  pageSize: Size(page.width, page.height),
-                                ),
-                              ),
-                            ),
+                          ),
                         ],
                       ),
                     ),

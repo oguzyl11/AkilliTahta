@@ -8,6 +8,8 @@ import 'features/pdf_viewer/controllers/pdf_controller.dart';
 import 'features/drawing/controllers/drawing_controller.dart';
 import 'features/toolbar/controllers/toolbar_controller.dart';
 import 'features/question/controllers/question_controller.dart';
+import 'features/library/controllers/library_controller.dart';
+import 'app_root.dart';
 
 /// Ana uygulama widget'ı
 ///
@@ -36,12 +38,16 @@ class AkilliTahtaApp extends StatelessWidget {
         ChangeNotifierProvider<QuestionController>.value(
           value: getIt<QuestionController>(),
         ),
+        // Kütüphane controller — kitaplar ve admin modu
+        ChangeNotifierProvider<LibraryController>.value(
+          value: getIt<LibraryController>(),
+        ),
       ],
       child: MaterialApp(
         title: AppStrings.appTitle,
         debugShowCheckedModeBanner: false,
         theme: AppTheme.lightTheme,
-        home: const HomePage(),
+        home: const AppRoot(),
       ),
     );
   }

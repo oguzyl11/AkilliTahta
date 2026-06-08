@@ -200,14 +200,13 @@ class _HomePageState extends State<HomePage> {
               onPressed: drawingController.clearCurrentPage,
             ),
           const SizedBox(width: AppSizes.paddingSM),
-          ElevatedButton.icon(
-            onPressed:
-                pdfController.isLoading ? null : pdfController.pickAndLoadPdf,
-            icon: const Icon(Icons.upload_file, size: 18),
-            label: Text(
-              pdfController.isLoading
-                  ? AppStrings.pdfYukleniyor
-                  : AppStrings.pdfYukle,
+          OutlinedButton.icon(
+            onPressed: pdfController.closePdf,
+            icon: const Icon(Icons.arrow_back, size: 18),
+            label: const Text('Kütüphaneye Dön'),
+            style: OutlinedButton.styleFrom(
+              foregroundColor: AppColors.primary,
+              side: const BorderSide(color: AppColors.primary),
             ),
           ),
         ],

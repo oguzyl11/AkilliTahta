@@ -51,6 +51,35 @@ class PdfController extends ChangeNotifier {
     }
   }
 
+  /// Doğrudan dosya yolu vererek PDF yükle (Kütüphaneden çağrılır)
+  Future<void> loadPdf(String path) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final doc = await _pdfRepository.loadPdfFromPath(path);
+      if (doc != null) {
+        _document = doc;
+        _currentPage = 1;
+        _currentFilePath = doc.filePath;
+      }
+    } catch (e) {
+      _errorMessage = 'PDF yüklenirken hata oluştu: $e';
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// PDF'i kapat ve kütüphaneye dön
+  void closePdf() {
+    _document = null;
+    _currentFilePath = null;
+    _currentPage = 1;
+    notifyListeners();
+  }
+
   /// Belirli bir sayfaya git
   void goToPage(int page) {
     if (page < 1 || page > totalPages) return;

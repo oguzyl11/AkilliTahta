@@ -32,6 +32,10 @@ class DrawingController extends ChangeNotifier {
   List<StrokeModel> get currentPageStrokes =>
       _pageStrokes[_activePageNumber] ?? [];
 
+  /// Belirli bir sayfanın çizim geçmişi
+  List<StrokeModel> getStrokesForPage(int pageNumber) =>
+      _pageStrokes[pageNumber] ?? [];
+
   /// Geri alma yapılabilir mi
   bool get canUndo => currentPageStrokes.isNotEmpty;
 

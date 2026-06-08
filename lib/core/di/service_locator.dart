@@ -5,6 +5,8 @@ import '../../features/pdf_viewer/controllers/pdf_controller.dart';
 import '../../features/drawing/controllers/drawing_controller.dart';
 import '../../features/toolbar/controllers/toolbar_controller.dart';
 import '../../features/question/controllers/question_controller.dart';
+import '../../features/library/repositories/library_repository.dart';
+import '../../features/library/controllers/library_controller.dart';
 
 /// Dependency Injection kurulumu — get_it service locator
 ///
@@ -21,9 +23,17 @@ void setupServiceLocator() {
     () => PdfRepositoryImpl(),
   );
 
+  getIt.registerLazySingleton<LibraryRepository>(
+    () => LibraryRepository(),
+  );
+
   // ─── Controllers (Factory — her erişimde yeni instance) ───
   getIt.registerLazySingleton<PdfController>(
     () => PdfController(pdfRepository: getIt<IPdfRepository>()),
+  );
+
+  getIt.registerLazySingleton<LibraryController>(
+    () => LibraryController(getIt<LibraryRepository>()),
   );
 
   getIt.registerLazySingleton<DrawingController>(

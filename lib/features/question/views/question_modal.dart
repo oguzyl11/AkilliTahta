@@ -185,7 +185,7 @@ class QuestionModal extends StatelessWidget {
                 Positioned.fill(
                   child: ChangeNotifierProvider.value(
                     value: context.read<DrawingController>(),
-                    child: const DrawingCanvas(),
+                    child: DrawingCanvas(pageNumber: -(question.id.hashCode.abs())),
                   ),
                 ),
               ],
