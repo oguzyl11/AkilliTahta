@@ -43,3 +43,14 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Environment Variables
+.env
+.env.*
+
+# Generated files
+*.g.dart
+*.freezed.dart
+
+# VS Code
+.vscode/

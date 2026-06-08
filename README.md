@@ -1,5 +1,9 @@
 # 🚀 Akıllı Tahta (Smart Board)
 
+[![Build Status](https://github.com/oguzyl11/AkilliTahta/actions/workflows/build.yml/badge.svg)](https://github.com/oguzyl11/AkilliTahta/actions)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Flutter](https://img.shields.io/badge/Flutter-%2302569B.svg?logo=Flutter&logoColor=white)](https://flutter.dev/)
+
 Pardus ve Windows uyumlu, sınıf içi etkileşimli eğitim için geliştirilmiş modern, dokunmatik optimizasyonlu, açık kaynaklı PDF ve beyaz tahta uygulaması.
 
 > [!NOTE]
@@ -10,7 +14,7 @@ Pardus ve Windows uyumlu, sınıf içi etkileşimli eğitim için geliştirilmi�
 - 📄 **Akıcı PDF Görüntüleme:** `pdfrx` motoru ile yüksek çözünürlüklü sayfa renderlama.
 - 🎨 **Gelişmiş Çizim Katmanı:** Sayfa bazlı izole edilmiş çizim geçmişi, limitsiz Undo/Redo desteği.
 - 🛠️ **Öğretmen Araç Çantası:** Özelleştirilebilir kalemler, vurgulayıcılar (marker), silgi ve geniş renk/kalınlık paleti.
-- 🔍 **Dinamik Soru Büyüteci:** Rubber-band (sürükle-bırak) seçimi ile sayfadaki herhangi bir soruyu kalite kaybı olmadan izole edip tam ekrana büyütme.
+- 🔍 **Dinamik Soru Büyüteci:** Rubber-band (sürükle-bırak) seçimi ile sayfadaki herhangi bir soruyu kalite kaybı olmadan izole edip tam ekrana büyütme (Gelişmiş merkez odaklı zoom).
 - 👆 **Dokunmatik (Touch) Optimizasyonu:** Büyük ekranlarda kolay kullanım için minimum 48x48px (Material Design standardı) temas alanları, swipe tabanlı sayfa navigasyonu.
 - 🏗️ **Solid Mimari:** Kurumsal seviyede sürdürülebilirlik için SOLID prensipleri ve MVC mimarisi temel alınarak inşa edilmiştir.
 
