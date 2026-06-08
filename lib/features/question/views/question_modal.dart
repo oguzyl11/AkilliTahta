@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:pdfrx/pdfrx.dart';
+import '../../pdf_viewer/controllers/pdf_controller.dart';
 import 'package:provider/provider.dart';
 import '../controllers/question_controller.dart';
 import '../../drawing/views/drawing_canvas.dart';
@@ -66,16 +68,7 @@ class QuestionModal extends StatelessWidget {
                               child: Stack(
                                 children: [
                                   // Arka plan — soru bölgesinin büyütülmüş hali
-                                  // TODO: PDF sayfasının seçili bölgesini render et
-                                  const Center(
-                                    child: Text(
-                                      'Soru bölgesi burada gösterilecek',
-                                      style: TextStyle(
-                                        color: AppColors.textHint,
-                                        fontSize: 18,
-                                      ),
-                                    ),
-                                  ),
+                                  _buildCroppedPdfRegion(context, controller),
 
                                   // Çizim katmanı
                                   Positioned.fill(
@@ -129,6 +122,110 @@ class QuestionModal extends StatelessWidget {
           onPressed: controller.closeModal,
         ),
       ],
+    );
+  }
+
+  /// PDF sayfasının sadece seçilen "Soru" (bounds) bölgesini kırparak (crop) gösterir
+  Widget _buildCroppedPdfRegion(BuildContext context, QuestionController controller) {
+    final pdfController = context.read<PdfController>();
+    final documentModel = pdfController.document;
+    final question = controller.selectedQuestion;
+
+    if (documentModel == null || question == null) {
+      return const Center(child: Text('PDF veya Soru yüklenemedi.'));
+    }
+
+    final bounds = question.bounds;
+    
+    return PdfDocumentViewBuilder.file(
+      pdfController.currentFilePath!,
+      builder: (context, doc) {
+        if (doc == null) return const Center(child: CircularProgressIndicator());
+        
+        final page = doc.pages[question.pageNumber - 1];
+        
+        // Gerçek PDF sayfasının boyutları
+        final pageWidth = page.width;
+        final pageHeight = page.height;
+
+        return LayoutBuilder(
+          builder: (context, constraints) {
+            final canvasWidth = constraints.maxWidth;
+            final canvasHeight = constraints.maxHeight;
+
+            // Seçilen bölgenin orijinaldeki piksel boyutu ve en-boy oranı
+            final croppedWidth = pageWidth * bounds.width;
+            final croppedHeight = pageHeight * bounds.height;
+            final cropAspectRatio = croppedWidth / croppedHeight;
+
+            // Ekrana ne kadar büyük çizeceğiz? (Tuvalin %85'ine sığdıralım)
+            final maxWidth = canvasWidth * 0.85;
+            final maxHeight = canvasHeight * 0.85;
+
+            double displayWidth = maxWidth;
+            double displayHeight = displayWidth / cropAspectRatio;
+            if (displayHeight > maxHeight) {
+              displayHeight = maxHeight;
+              displayWidth = displayHeight * cropAspectRatio;
+            }
+
+            // Büyütülmüş resim "displayWidth" boyutunda olacak.
+            // Orijinal PDF'in tamamının boyutu bu büyütme oranında ne olmalı?
+            final fullPageWidth = displayWidth / bounds.width;
+            final fullPageHeight = displayHeight / bounds.height;
+
+            return Stack(
+              children: [
+                // Tüm modalı kaplayan BEYAZ tahta
+                Container(color: Colors.white),
+
+                // Ortaya yerleştirilen Kırpılmış Soru Görseli
+                Center(
+                  child: Container(
+                    width: displayWidth,
+                    height: displayHeight,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.15),
+                          blurRadius: 15,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: ClipRect(
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            left: -bounds.left * fullPageWidth,
+                            top: -bounds.top * fullPageHeight,
+                            width: fullPageWidth,
+                            height: fullPageHeight,
+                            child: PdfPageView(
+                              document: doc,
+                              pageNumber: question.pageNumber,
+                              alignment: Alignment.topLeft,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Çizim katmanı (En üstte, tüm beyaz ekranı kaplar)
+                Positioned.fill(
+                  child: ChangeNotifierProvider.value(
+                    value: context.read<DrawingController>(),
+                    child: const DrawingCanvas(),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 }

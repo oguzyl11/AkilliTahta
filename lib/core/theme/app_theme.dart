@@ -3,18 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import '../constants/app_colors.dart';
 import '../constants/app_sizes.dart';
 
-/// Uygulama koyu tema tanımı — akıllı tahta ortamı için optimize edilmiş
+/// Uygulama açık tema tanımı — akıllı tahta ortamı için optimize edilmiş
 class AppTheme {
   AppTheme._();
 
-  static ThemeData get darkTheme {
+  static ThemeData get lightTheme {
     return ThemeData(
       useMaterial3: true,
-      brightness: Brightness.dark,
+      brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.background,
-      colorScheme: const ColorScheme.dark(
+      colorScheme: const ColorScheme.light(
         primary: AppColors.primary,
-        secondary: AppColors.accent,
+        secondary: AppColors.primaryLight,
         surface: AppColors.surface,
         error: AppColors.error,
         onPrimary: Colors.white,
@@ -48,67 +48,39 @@ class AppTheme {
             fontWeight: FontWeight.w500,
             color: AppColors.textPrimary,
           ),
-          bodyLarge: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w400,
-            color: AppColors.textPrimary,
-          ),
-          bodyMedium: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w400,
-            color: AppColors.textSecondary,
-          ),
-          labelLarge: TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.textPrimary,
-          ),
-          labelMedium: TextStyle(
-            fontSize: 12,
-            fontWeight: FontWeight.w500,
-            color: AppColors.textSecondary,
-          ),
+          bodyLarge: TextStyle(color: AppColors.textPrimary, fontSize: 16),
+          bodyMedium: TextStyle(color: AppColors.textSecondary, fontSize: 14),
         ),
       ),
 
-      // AppBar teması
-      appBarTheme: const AppBarTheme(
-        backgroundColor: AppColors.surface,
-        foregroundColor: AppColors.textPrimary,
-        elevation: 0,
-        toolbarHeight: AppSizes.headerHeight,
-        centerTitle: false,
+      // Araç çubuğu icon teması
+      iconTheme: const IconThemeData(
+        color: AppColors.textPrimary,
+        size: AppSizes.toolbarIconSize,
       ),
 
-      // Kart teması
-      cardTheme: CardThemeData(
-        color: AppColors.surfaceCard,
-        elevation: 0,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-          side: const BorderSide(color: AppColors.border, width: 1),
+      // Tooltip teması
+      tooltipTheme: TooltipThemeData(
+        decoration: BoxDecoration(
+          color: AppColors.textPrimary.withValues(alpha: 0.9),
+          borderRadius: BorderRadius.circular(AppSizes.radiusSM),
         ),
+        textStyle: const TextStyle(color: Colors.white, fontSize: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       ),
 
-      // Elevated Button teması — dokunmatik uyumlu büyük butonlar
+      // ElevatedButton teması
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primary,
           foregroundColor: Colors.white,
-          minimumSize: const Size(
-            AppSizes.touchTargetMin,
-            AppSizes.touchTargetMin,
-          ),
+          elevation: 0,
           padding: const EdgeInsets.symmetric(
             horizontal: AppSizes.paddingLG,
             vertical: AppSizes.paddingMD,
           ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(AppSizes.radiusMD),
-          ),
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
           ),
         ),
       ),
@@ -122,20 +94,6 @@ class AppTheme {
           ),
           foregroundColor: AppColors.textSecondary,
         ),
-      ),
-
-      // Tooltip teması
-      tooltipTheme: TooltipThemeData(
-        decoration: BoxDecoration(
-          color: AppColors.surfaceCard,
-          borderRadius: BorderRadius.circular(AppSizes.radiusSM),
-          border: Border.all(color: AppColors.border),
-        ),
-        textStyle: const TextStyle(
-          color: AppColors.textPrimary,
-          fontSize: 12,
-        ),
-        waitDuration: const Duration(milliseconds: 500),
       ),
 
       // Divider teması

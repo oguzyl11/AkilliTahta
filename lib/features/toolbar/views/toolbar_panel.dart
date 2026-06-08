@@ -137,8 +137,10 @@ class ToolbarPanel extends StatelessWidget {
 
   Widget _buildUndoRedoButtons(BuildContext context) {
     final drawing = context.watch<DrawingController>();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
+    return Wrap(
+      alignment: WrapAlignment.center,
+      spacing: AppSizes.paddingXS,
+      runSpacing: AppSizes.paddingXS,
       children: [
         AppIconButton(
           icon: Icons.undo,
@@ -172,8 +174,10 @@ class ToolbarPanel extends StatelessWidget {
           ),
         ),
         const SizedBox(height: AppSizes.paddingSM),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
+        Wrap(
+          alignment: WrapAlignment.center,
+          spacing: AppSizes.paddingXS,
+          runSpacing: AppSizes.paddingXS,
           children: [
             AppIconButton(
               icon: Icons.chevron_left,

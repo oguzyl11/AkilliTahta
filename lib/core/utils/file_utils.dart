@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 
 /// Dosya işlemleri yardımcı fonksiyonları
@@ -18,9 +19,9 @@ class FileUtils {
         return result.files.first.path;
       }
       return null;
-    } catch (e) {
-      // Dosya seçme hatası — null döndür, çağıran taraf handle eder
-      return null;
+    } catch (e, stackTrace) {
+      debugPrint('File picker error: $e\n$stackTrace');
+      rethrow;
     }
   }
 }

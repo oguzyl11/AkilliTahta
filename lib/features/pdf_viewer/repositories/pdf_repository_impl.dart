@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:pdfrx/pdfrx.dart';
 import '../../../core/utils/file_utils.dart';
 import '../models/pdf_document_model.dart';
@@ -21,8 +22,9 @@ class PdfRepositoryImpl implements IPdfRepository {
       if (filePath == null) return null;
 
       return await loadPdfFromPath(filePath);
-    } catch (e) {
-      return null;
+    } catch (e, stackTrace) {
+      debugPrint('pickAndLoadPdf error: $e\n$stackTrace');
+      rethrow;
     }
   }
 
@@ -42,8 +44,9 @@ class PdfRepositoryImpl implements IPdfRepository {
         filePath: filePath,
         totalPages: _currentDocument!.pages.length,
       );
-    } catch (e) {
-      return null;
+    } catch (e, stackTrace) {
+      debugPrint('loadPdfFromPath error: $e\n$stackTrace');
+      rethrow;
     }
   }
 

@@ -1,55 +1,49 @@
 import 'package:flutter/material.dart';
 
-/// Uygulama renk paleti — koyu tema odaklı akıllı tahta tasarımı
+/// Uygulama renk paleti — açık tema odaklı akıllı tahta tasarımı
 class AppColors {
   AppColors._();
 
   // Ana arka plan renkleri
-  static const Color background = Color(0xFF0F0F1A);
-  static const Color surface = Color(0xFF1A1A2E);
-  static const Color surfaceLight = Color(0xFF16213E);
-  static const Color surfaceCard = Color(0xFF1E2A45);
+  static const Color background = Color(0xFFF5F6F8);
+  static const Color surface = Color(0xFFFFFFFF);
+  static const Color surfaceCard = Color(0xFFF0F2F5);
 
   // Vurgu renkleri
-  static const Color primary = Color(0xFF4A9EFF);
-  static const Color primaryDark = Color(0xFF0F3460);
-  static const Color accent = Color(0xFFE94560);
-  static const Color accentSoft = Color(0xFFFF6B8A);
+  static const Color primary = Color(0xFF2563EB);
+  static const Color primaryLight = Color(0xFF60A5FA);
 
   // Metin renkleri
-  static const Color textPrimary = Color(0xFFF0F0F0);
-  static const Color textSecondary = Color(0xFFB0B0C0);
-  static const Color textHint = Color(0xFF6C6C80);
+  static const Color textPrimary = Color(0xFF1E293B);
+  static const Color textSecondary = Color(0xFF475569);
+  static const Color textHint = Color(0xFF94A3B8);
 
   // Kenar ve ayırıcı
-  static const Color border = Color(0xFF2A2A40);
-  static const Color divider = Color(0xFF252540);
+  static const Color border = Color(0xFFE2E8F0);
 
   // Durum renkleri
-  static const Color success = Color(0xFF4CAF50);
-  static const Color warning = Color(0xFFFF9800);
-  static const Color error = Color(0xFFE94560);
-  static const Color info = Color(0xFF4A9EFF);
+  static const Color success = Color(0xFF10B981);
+  static const Color error = Color(0xFFEF4444);
 
   // Araç çubuğu
-  static const Color toolbarBackground = Color(0xFF12122A);
-  static const Color toolbarActive = Color(0xFF4A9EFF);
-  static const Color toolbarInactive = Color(0xFF6C6C80);
+  static const Color toolbarBackground = Color(0xFFFFFFFF);
+  static const Color toolbarActive = Color(0xFF2563EB);
+  static const Color toolbarInactive = Color(0xFF64748B);
+
+  static const Color divider = Color(0xFFE2E8F0);
 
   // Çizim renkleri — öğretmen paleti
   static const List<Color> drawingPalette = [
-    Color(0xFFFFFFFF), // Beyaz
     Color(0xFF000000), // Siyah
-    Color(0xFFE94560), // Kırmızı
-    Color(0xFF4A9EFF), // Mavi
-    Color(0xFF4CAF50), // Yeşil
-    Color(0xFFFFEB3B), // Sarı
-    Color(0xFFFF9800), // Turuncu
-    Color(0xFF9C27B0), // Mor
+    Color(0xFFEF4444), // Kırmızı
+    Color(0xFF2563EB), // Mavi
+    Color(0xFF10B981), // Yeşil
+    Color(0xFFF59E0B), // Sarı/Turuncu
+    Color(0xFF8B5CF6), // Mor
   ];
 
   // Buton hover/aktif efektleri
-  static const Color buttonHover = Color(0x1AFFFFFF);
-  static const Color buttonPressed = Color(0x33FFFFFF);
-  static const Color buttonActive = Color(0xFF4A9EFF);
+  static const Color buttonHover = Color(0xFFF1F5F9);
+  static const Color buttonPressed = Color(0xFFE2E8F0);
+  static const Color buttonActive = Color(0xFF2563EB);
 }

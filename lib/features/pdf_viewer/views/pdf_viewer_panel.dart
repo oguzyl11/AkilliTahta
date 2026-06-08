@@ -22,7 +22,43 @@ class PdfViewerPanel extends StatefulWidget {
 }
 
 class _PdfViewerPanelState extends State<PdfViewerPanel> {
-  final PdfViewerController _pdfViewerController = PdfViewerController();
+  late PageController _pageController;
+  int _lastPage = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController();
+  }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final pdfController = context.watch<PdfController>();
+    
+    // Eğer toolbar'dan sayfa değiştirildiyse PageView'i animasyonla kaydır
+    if (pdfController.isLoaded && 
+        pdfController.currentPage != _lastPage && 
+        _pageController.hasClients) {
+      _lastPage = pdfController.currentPage;
+      // Mikro gecikme (rebuild çakışmasını önlemek için)
+      Future.microtask(() {
+        if (_pageController.hasClients) {
+          _pageController.animateToPage(
+            _lastPage - 1,
+            duration: const Duration(milliseconds: 400),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -68,6 +104,22 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
             ),
             textAlign: TextAlign.center,
           ),
+          if (pdfController.errorMessage != null) ...[
+            const SizedBox(height: 16),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.error.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: AppColors.error),
+              ),
+              child: Text(
+                pdfController.errorMessage!,
+                style: const TextStyle(color: AppColors.error),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
           const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: pdfController.isLoading
@@ -85,48 +137,94 @@ class _PdfViewerPanelState extends State<PdfViewerPanel> {
     );
   }
 
-  /// PDF görüntüleyici
+  /// PDF görüntüleyici (PageView ile sayfa sayfa geçiş efekti)
   Widget _buildPdfView(PdfController pdfController) {
     final drawingController = context.read<DrawingController>();
     final questionController = context.read<QuestionController>();
     final isSelectMode = context.watch<DrawingController>().currentTool.isSelect;
 
-    return PdfViewer.file(
+    return PdfDocumentViewBuilder.file(
       pdfController.currentFilePath!,
-      controller: _pdfViewerController,
-      params: PdfViewerParams(
-        pageOverlaysBuilder: (context, pageRect, page) {
-          // Her PDF sayfası üzerine çizim ve seçim katmanı ekle
-          return [
-            // Katman 2: Çizim canvas'ı
-            if (!isSelectMode)
-              Positioned.fill(
-                child: ChangeNotifierProvider.value(
-                  value: drawingController,
-                  child: const DrawingCanvas(),
-                ),
-              ),
+      builder: (context, doc) {
+        if (doc == null) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-            // Katman 3: Seçim overlay'i (sadece seçim modunda)
-            if (isSelectMode)
-              Positioned.fill(
-                child: ChangeNotifierProvider.value(
-                  value: questionController,
-                  child: question_widgets.SelectionOverlay(
-                    pageNumber: page.pageNumber,
-                    pageSize: Size(pageRect.width, pageRect.height),
+        // Eğer belge yeni yüklendiyse PageController initial sayfasını ayarla
+        if (!_pageController.hasClients || _pageController.positions.isEmpty) {
+          _pageController = PageController(initialPage: pdfController.currentPage - 1);
+          _lastPage = pdfController.currentPage;
+        }
+
+        return PageView.builder(
+          controller: _pageController,
+          itemCount: doc.pages.length,
+          onPageChanged: (index) {
+            final pageNum = index + 1;
+            if (_lastPage != pageNum) {
+              _lastPage = pageNum;
+              pdfController.goToPage(pageNum);
+              drawingController.setActivePageNumber(pageNum);
+            }
+          },
+          itemBuilder: (context, index) {
+            final pageNum = index + 1;
+            final page = doc.pages[index];
+
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: AspectRatio(
+                  aspectRatio: page.width / page.height,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 10,
+                          spreadRadius: 1,
+                        ),
+                      ],
+                    ),
+                    child: Stack(
+                      children: [
+                        // Katman 1: PDF Sayfası
+                        PdfPageView(
+                          document: doc,
+                          pageNumber: pageNum,
+                          alignment: Alignment.center,
+                        ),
+                        
+                        // Katman 2: Çizim canvas'ı
+                        if (!isSelectMode)
+                          Positioned.fill(
+                            child: ChangeNotifierProvider.value(
+                              value: drawingController,
+                              child: const DrawingCanvas(),
+                            ),
+                          ),
+
+                        // Katman 3: Seçim overlay'i (sadece seçim modunda)
+                        if (isSelectMode)
+                          Positioned.fill(
+                            child: ChangeNotifierProvider.value(
+                              value: questionController,
+                              child: question_widgets.SelectionOverlay(
+                                pageNumber: pageNum,
+                                pageSize: Size(page.width, page.height),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-          ];
-        },
-        onPageChanged: (pageNumber) {
-          if (pageNumber != null) {
-            pdfController.goToPage(pageNumber);
-            drawingController.setActivePageNumber(pageNumber);
-          }
-        },
-      ),
+            );
+          },
+        );
+      },
     );
   }
 }

@@ -40,7 +40,7 @@ class AkilliTahtaApp extends StatelessWidget {
       child: MaterialApp(
         title: AppStrings.appTitle,
         debugShowCheckedModeBanner: false,
-        theme: AppTheme.darkTheme,
+        theme: AppTheme.lightTheme,
         home: const HomePage(),
       ),
     );
